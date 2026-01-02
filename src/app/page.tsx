@@ -1,65 +1,145 @@
-import Image from "next/image";
+import { prisma } from "@/lib/db";
+import { getHomeProducts, getBestSellers } from "@/lib/queries";
+import { ProductCard } from "@/components/products/product-card";
+import { SearchBar } from "@/components/search/search-bar";
 
-export default function Home() {
+type HomeProps = {
+  searchParams: Promise<{
+    q?: string;
+    category?: string;
+  }>;
+};
+
+export const revalidate = 30;
+
+export default async function Home({ searchParams }: HomeProps) {
+  const { q, category } = await searchParams;
+
+  let products: Awaited<ReturnType<typeof getHomeProducts>> = [];
+  let bestSellers: Awaited<ReturnType<typeof getBestSellers>> = [];
+  let categories: Awaited<ReturnType<typeof prisma.category.findMany>> = [];
+
+  try {
+    [products, bestSellers, categories] = await Promise.all([
+      getHomeProducts({
+        search: q,
+        categorySlug: category,
+        take: 30,
+      }),
+      getBestSellers(),
+      prisma.category.findMany({ orderBy: { name: "asc" } }),
+    ]);
+  } catch (error: any) {
+    // Handle case where database tables don't exist yet
+    if (error?.code === "P2021" || error?.message?.includes("does not exist")) {
+      console.warn("Database tables not found. Please run migrations:", error);
+      // Continue with empty arrays
+    } else {
+      throw error;
+    }
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="flex flex-col gap-10">
+      {/*
+        
+        <section className="rounded-3xl bg-gradient-to-r from-blue-50 to-purple-50 p-8 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-sm font-semibold text-blue-700">Marketplace</p>
+            <h1 className="text-3xl font-bold text-slate-900">
+              Catálogo moderno para perfumes, ropa, bolsos, peluches y más
+            </h1>
+            <p className="mt-2 text-slate-600">
+              Explora publicaciones de vendedores verificados, filtra por precio, marca o
+              categoría y contacta por WhatsApp.
+            </p>
+          </div>
+          <div className="w-full max-w-md">
+            <SearchBar placeholder="Buscar productos..." />
+          </div>
+        </div>
+      </section>
+        */}
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <form className="grid gap-4 md:grid-cols-3">
+          <div className="md:col-span-2">
+            <label className="text-sm font-semibold text-slate-700">
+              Nombre
+            </label>
+            <input
+              name="q"
+              defaultValue={q ?? ""}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              placeholder="Buscar por nombre"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-semibold text-slate-700">
+              Categoría
+            </label>
+            <select
+              name="category"
+              defaultValue={category ?? ""}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <option value="">Todas</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.slug}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="md:col-span-3 flex justify-end">
+            <button
+              type="submit"
+              className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             >
-              Learning
-            </a>{" "}
-            center.
+              Aplicar filtros
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-slate-900">
+            Todos los productos
+          </h2>
+          <p className="text-sm text-slate-500">
+            Se muestran {products.length} resultados
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+        {products.length === 0 ? (
+          <p className="text-slate-600">
+            No hay productos que coincidan con la búsqueda.
+          </p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {bestSellers.length > 0 && (
+        <section className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-slate-900">
+              Productos más vendidos
+            </h2>
+            <p className="text-sm text-slate-500">Top {bestSellers.length}</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {bestSellers.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

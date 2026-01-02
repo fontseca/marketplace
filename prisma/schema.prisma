@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProductStatus {
+  draft
+  published
+  archived
+}
+
+enum EventStatus {
+  pending
+  resolved
+  discarded
+}
+
+enum EventType {
+  purchase_intent
+}
+
+model Role {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  users User[]
+
+  @@map("role")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique @map("clerk_id")
+  email     String   @unique
+  phone     String?  @map("phone")
+  roleId    String   @map("role_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  role    Role          @relation(fields: [roleId], references: [id])
+  vendorProfile   VendorProfile?
+  productEvents   ProductEvent[] @relation("EventUser")
+
+  @@map("user")
+}
+
+model VendorProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique @map("user_id")
+  displayName String   @map("display_name")
+  slug        String   @unique
+  bio         String?
+  whatsapp    String?
+  website     String?
+  avatarUrl   String?  @map("avatar_url")
+  bannerUrl   String?  @map("banner_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user     User    @relation(fields: [userId], references: [id])
+  products Product[]
+  events   ProductEvent[]
+  sales    ProductSale[]
+  catalogLinks CatalogShareLink[]
+  brands   Brand[]
+
+  @@map("vendor_profile")
+}
+
+model Brand {
+  id        String    @id @default(cuid())
+  vendorId  String   @map("vendor_id")
+  name      String
+  slug      String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  vendor   VendorProfile @relation(fields: [vendorId], references: [id])
+  products Product[]
+
+  @@unique([vendorId, slug])
+  @@map("brand")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  products Product[]
+
+  @@unique([name, slug])
+  @@map("category")
+}
+
+model Product {
+  id             String         @id @default(cuid())
+  vendorId       String         @map("vendor_id")
+  brandId        String?        @map("brand_id")
+  categoryId     String?        @map("category_id")
+  name           String
+  slug           String         @unique
+  description    String
+  brandName      String?        @map("brand_name")
+  regularPrice   Decimal        @map("regular_price")
+  salePrice      Decimal?       @map("sale_price")
+  saleExpiresAt  DateTime?      @map("sale_expires_at")
+  stock          Int            @default(0)
+  salesCount     Int            @default(0) @map("sales_count")
+  status         ProductStatus  @default(published)
+  isFeatured     Boolean        @default(false) @map("is_featured")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  vendor     VendorProfile @relation(fields: [vendorId], references: [id])
+  brand      Brand?        @relation(fields: [brandId], references: [id])
+  category   Category?     @relation(fields: [categoryId], references: [id])
+  images     ProductImage[]
+  variants   ProductVariant[]
+  events     ProductEvent[]
+  sales      ProductSale[]
+
+  @@index([vendorId, status])
+  @@index([categoryId])
+  @@index([brandId])
+  @@map("product")
+}
+
+model ProductImage {
+  id         String   @id @default(cuid())
+  productId  String   @map("product_id")
+  url        String
+  storageKey String?  @map("storage_key")
+  position   Int      @default(0)
+  alt        String?
+  width      Int?
+  height     Int?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+  @@map("product_image")
+}
+
+model ProductVariant {
+  id         String   @id @default(cuid())
+  productId  String   @map("product_id")
+  size       String?
+  color      String?
+  model      String?
+  sku        String?
+  price      Decimal?
+  stock      Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+  @@map("product_variant")
+}
+
+model ProductEvent {
+  id         String       @id @default(cuid())
+  productId  String       @map("product_id")
+  vendorId   String       @map("vendor_id")
+  userId     String?      @map("user_id")
+  status     EventStatus  @default(pending)
+  type       EventType    @default(purchase_intent)
+  note       String?
+  buyerName  String?      @map("buyer_name")
+  buyerContact String?    @map("buyer_contact")
+  createdAt  DateTime     @default(now()) @map("created_at")
+  resolvedAt DateTime?    @map("resolved_at")
+
+  product Product        @relation(fields: [productId], references: [id])
+  vendor  VendorProfile  @relation(fields: [vendorId], references: [id])
+  user    User?          @relation("EventUser", fields: [userId], references: [id])
+
+  @@index([vendorId, status])
+  @@index([productId])
+  @@map("product_event")
+}
+
+model ProductSale {
+  id        String   @id @default(cuid())
+  productId String   @map("product_id")
+  vendorId  String   @map("vendor_id")
+  quantity  Int      @default(1)
+  amount    Decimal?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  product Product       @relation(fields: [productId], references: [id])
+  vendor  VendorProfile @relation(fields: [vendorId], references: [id])
+
+  @@index([vendorId])
+  @@map("product_sale")
+}
+
+model CatalogShareLink {
+  id        String   @id @default(cuid())
+  vendorId  String   @map("vendor_id")
+  slug      String   @unique
+  weekLabel String   @map("week_label")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  vendor VendorProfile @relation(fields: [vendorId], references: [id])
+
+  @@index([vendorId, weekLabel])
+  @@map("catalog_share_link")
+}
+
