@@ -16,7 +16,7 @@ export default function CompleteProfilePage() {
 
   useEffect(() => {
     if (isLoaded && !user) {
-      router.push("/sign-in");
+      router.push("/sign-in" as any);
     }
   }, [isLoaded, user, router]);
 
@@ -56,7 +56,7 @@ export default function CompleteProfilePage() {
       }
 
       // Redirect to dashboard after successful submission
-      router.push("/dashboard");
+      router.push("/dashboard" as any);
     } catch (err: any) {
       setError(err.message || "Error al guardar el número de teléfono");
     } finally {

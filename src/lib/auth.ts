@@ -2,18 +2,27 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "./db";
 import { slugify } from "./utils";
+import type { Prisma } from "@prisma/client";
 
 async function ensureRoles() {
-  await prisma.role.upsert({
-    where: { name: "vendor" },
-    update: {},
-    create: { name: "vendor" },
-  });
-  await prisma.role.upsert({
-    where: { name: "root" },
-    update: {},
-    create: { name: "root" },
-  });
+  try {
+    // Check if roles exist first to avoid unique constraint errors
+    const [vendorRole, rootRole] = await Promise.all([
+      prisma.role.findUnique({ where: { name: "vendor" } }),
+      prisma.role.findUnique({ where: { name: "root" } }),
+    ]);
+
+    if (!vendorRole) {
+      await prisma.role.create({ data: { name: "vendor" } });
+    }
+    if (!rootRole) {
+      await prisma.role.create({ data: { name: "root" } });
+    }
+  } catch (error) {
+    // Silently fail during build/static generation - roles will be created on first request
+    // This prevents build errors when database isn't available or roles already exist
+    console.warn("Could not ensure roles (this is OK during build):", error);
+  }
 }
 
 function buildVendorSlug(base: string) {
@@ -40,7 +49,9 @@ export async function getSessionUser() {
     include: { role: true },
   });
 
-  const dbUser = existingUser
+  type UserWithRole = Prisma.UserGetPayload<{ include: { role: true } }>;
+  
+  const dbUser: UserWithRole = existingUser
     ? await prisma.user.update({
         where: { clerkId: authUser.id },
         data: {

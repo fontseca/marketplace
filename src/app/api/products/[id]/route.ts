@@ -155,12 +155,14 @@ export async function PATCH(request: Request, { params }: Params) {
       images: data.images
         ? {
             deleteMany: { productId: product.id },
-            create: data.images.map((img) => ({
-              url: img.url,
-              storageKey: img.storageKey,
-              position: img.position ?? 0,
-              alt: img.alt,
-            })),
+            create: data.images
+              .filter((img) => img.url) // Filter out images without URLs
+              .map((img) => ({
+                url: img.url!,
+                storageKey: img.storageKey ?? null,
+                position: img.position ?? 0,
+                alt: img.alt ?? null,
+              })),
           }
         : undefined,
       variants: data.variants

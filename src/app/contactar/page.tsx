@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 
 export default function ContactDeveloperPage() {
   return (
@@ -32,11 +31,14 @@ export default function ContactDeveloperPage() {
           </Link>
         </p>
       </div>
-      <Button asChild>
-        <Link href="https://fontseca.dev" target="_blank" rel="noreferrer">
-          Visitar sitio
-        </Link>
-      </Button>
+      <Link
+        href="https://fontseca.dev"
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+      >
+        Visitar sitio
+      </Link>
     </div>
   );
 }

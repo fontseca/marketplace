@@ -60,7 +60,12 @@ export default async function ProductPage({ params }: Props) {
   return (
     <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
       <div className="space-y-6">
-        <ProductGallery images={product.images} />
+        <ProductGallery
+          images={product.images.map((img) => ({
+            url: img.url,
+            alt: img.alt ?? undefined,
+          }))}
+        />
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-xl font-semibold text-slate-900">Descripción</h2>
           <p className="mt-2 whitespace-pre-line text-slate-700">

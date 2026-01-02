@@ -30,7 +30,7 @@ export default async function VendorProfilePage({ params }: Props) {
                 </Link>
               )}
               {vendor.website && (
-                <Link href={vendor.website} className="text-blue-600 hover:underline">
+                <Link href={vendor.website as any} className="text-blue-600 hover:underline">
                   Sitio web
                 </Link>
               )}
