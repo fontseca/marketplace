@@ -28,7 +28,7 @@
     "filepond-plugin-image-preview": "^4.6.11",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.462.0",
-    "next": "15.2.3",
+    "next": "^15.2.6",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-filepond": "^7.1.2",
@@ -47,7 +47,7 @@
     "@types/react-dom": "^18.3.1",
     "@types/sortablejs": "^1.15.8",
     "eslint": "^9",
-    "eslint-config-next": "15.2.3",
+    "eslint-config-next": "15.2.6",
     "prisma": "^5.22.0",
     "tailwindcss": "^4",
     "typescript": "^5"
