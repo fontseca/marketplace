@@ -77,7 +77,15 @@ export default async function DashboardPage() {
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-slate-900">Stock bajo</h3>
-            <span className="text-sm text-slate-500">{lowStock.length}</span>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-slate-500">{lowStock.length}</span>
+              <Link
+                href="/dashboard/products"
+                className="text-sm text-blue-600 hover:underline"
+              >
+                Ver todos
+              </Link>
+            </div>
           </div>
           {lowStock.length === 0 ? (
             <p className="mt-3 text-sm text-slate-600">No hay productos con stock bajo.</p>
@@ -86,7 +94,15 @@ export default async function DashboardPage() {
               {lowStock.map((p) => (
                 <li key={p.id} className="flex items-center justify-between py-2">
                   <span className="text-sm text-slate-800">{p.name}</span>
-                  <span className="text-sm font-semibold text-orange-600">{p.stock} uds</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-orange-600">{p.stock} uds</span>
+                    <Link
+                      href={`/dashboard/products/${p.id}/edit`}
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      Editar
+                    </Link>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -96,7 +112,15 @@ export default async function DashboardPage() {
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-slate-900">Más vendidos</h3>
-            <span className="text-sm text-slate-500">{topProducts.length}</span>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-slate-500">{topProducts.length}</span>
+              <Link
+                href="/dashboard/products"
+                className="text-sm text-blue-600 hover:underline"
+              >
+                Ver todos
+              </Link>
+            </div>
           </div>
           {topProducts.length === 0 ? (
             <p className="mt-3 text-sm text-slate-600">Aún no hay ventas registradas.</p>
@@ -118,12 +142,20 @@ export default async function DashboardPage() {
                       <p className="text-xs text-slate-500">{p.salesCount} vendidos</p>
                     </div>
                   </div>
-                  <Link
-                    href={`/p/${p.id}`}
-                    className="text-sm text-blue-600 hover:underline"
-                  >
-                    Ver
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href={`/dashboard/products/${p.id}/edit`}
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      Editar
+                    </Link>
+                    <Link
+                      href={`/p/${p.id}`}
+                      className="text-sm text-slate-500 hover:text-slate-700 hover:underline"
+                    >
+                      Ver
+                    </Link>
+                  </div>
                 </li>
               ))}
             </ul>

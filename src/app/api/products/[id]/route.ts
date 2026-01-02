@@ -160,9 +160,9 @@ export async function PATCH(request: Request, { params }: Params) {
               .map((img) => ({
                 url: img.url!,
                 storageKey: img.storageKey ?? null,
-                position: img.position ?? 0,
+              position: img.position ?? 0,
                 alt: img.alt ?? null,
-              })),
+            })),
           }
         : undefined,
       variants: data.variants
