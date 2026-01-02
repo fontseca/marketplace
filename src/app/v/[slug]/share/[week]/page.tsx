@@ -5,6 +5,8 @@ import { ProductCard } from "@/components/products/product-card";
 
 type Props = { params: Promise<{ slug: string; week: string }> };
 
+export const dynamic = 'force-dynamic';
+
 export default async function SharedCatalogPage({ params }: Props) {
   const { slug, week } = await params;
   const vendor = await prisma.vendorProfile.findUnique({

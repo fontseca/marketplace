@@ -7,6 +7,8 @@ import { getVendorWithProducts } from "@/lib/queries";
 
 type Props = { params: Promise<{ slug: string }> };
 
+export const dynamic = 'force-dynamic';
+
 export default async function VendorProfilePage({ params }: Props) {
   const { slug } = await params;
   const vendor = await getVendorWithProducts(slug);

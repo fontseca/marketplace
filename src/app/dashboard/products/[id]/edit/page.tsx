@@ -5,6 +5,8 @@ import { ProductForm } from "@/components/products/product-form";
 
 type Props = { params: Promise<{ id: string }> };
 
+export const dynamic = 'force-dynamic';
+
 export default async function EditProductPage({ params }: Props) {
   const session = await getSessionUser();
   if (!session) return notFound();
