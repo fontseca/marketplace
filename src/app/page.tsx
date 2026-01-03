@@ -1,7 +1,9 @@
+import { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { getHomeProducts, getBestSellers } from "@/lib/queries";
 import { ProductCard } from "@/components/products/product-card";
 import { SearchBar } from "@/components/search/search-bar";
+import { getAppUrl } from "@/lib/utils";
 
 type HomeProps = {
   searchParams: Promise<{
@@ -11,6 +13,25 @@ type HomeProps = {
 };
 
 export const revalidate = 30;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const title = "Marketplace | Catálogos de vendedores";
+  const description = "Marketplace colaborativo para publicar y mostrar productos con variantes, ofertas y contacto directo por WhatsApp.";
+  const url = getAppUrl();
+
+  return {
+    title,
+    description,
+    alternates: { canonical: "/" },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "website",
+      siteName: "Marketplace",
+    },
+  };
+}
 
 export default async function Home({ searchParams }: HomeProps) {
   const { q, category } = await searchParams;

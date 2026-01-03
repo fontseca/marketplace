@@ -11,19 +11,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.format() }, { status: 400 });
   }
 
-  // Get current user to access their phone number
+  // Get current user if authenticated (optional)
   const session = await getSessionUser();
-  if (!session) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
-
-  // Check if user has phone number
-  if (!session.dbUser.phone) {
-    return NextResponse.json(
-      { error: "Por favor completa tu perfil con tu número de teléfono" },
-      { status: 400 },
-    );
-  }
 
   const product = await prisma.product.findUnique({
     where: { id: parsed.data.productId },
@@ -34,13 +23,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
   }
 
-  // Use buyer's phone from user record if not provided in request
-  const buyerContact = parsed.data.buyerContact || session.dbUser.phone;
+  // Use buyer's phone from user record if authenticated, otherwise use provided contact
+  const buyerContact = parsed.data.buyerContact || (session?.dbUser.phone ?? null);
+  const userId = session?.dbUser.id ?? null;
 
   await prisma.productEvent.create({
     data: {
       productId: product.id,
       vendorId: product.vendorId,
+      userId,
       status: "pending",
       type: "purchase_intent",
       buyerName: parsed.data.buyerName,
@@ -49,7 +40,7 @@ export async function POST(request: Request) {
     },
   });
 
-  return NextResponse.json({ ok: true, buyerPhone: session.dbUser.phone });
+  return NextResponse.json({ ok: true, buyerPhone: buyerContact });
 }
 
 export async function GET(request: Request) {

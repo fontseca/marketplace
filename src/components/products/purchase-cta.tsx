@@ -38,11 +38,6 @@ export function PurchaseCta({
 
       if (!response.ok) {
         const data = await response.json();
-        // If user doesn't have phone, redirect to complete profile
-        if (response.status === 401 || data.error?.includes("teléfono")) {
-          router.push("/complete-profile");
-          return;
-        }
         throw new Error(data.error || "Error al crear el evento");
       }
 
@@ -53,7 +48,7 @@ export function PurchaseCta({
       if (vendorPhone) {
         let message = `Hola ${vendorName ?? ""}, estoy interesado en el producto: ${productName}. Enlace: ${buildShareUrl(`/p/${productSlug}`)}`;
         
-        // Include buyer's phone number in the message
+        // Include buyer's phone number in the message if available
         if (buyerPhone) {
           message += `\n\nMi número de contacto: ${formatPhoneNumber(buyerPhone)}`;
         }
@@ -66,6 +61,7 @@ export function PurchaseCta({
       }
     } catch (error) {
       console.error(error);
+      alert(error instanceof Error ? error.message : "Error al procesar la compra");
     } finally {
       setLoading(false);
     }

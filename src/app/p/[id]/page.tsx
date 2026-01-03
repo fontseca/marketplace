@@ -167,7 +167,7 @@ export default async function ProductPage({ params }: Props) {
               vendorName={product.vendor.displayName}
               productSlug={product.id}
             />
-            <ShareButton url={`${getAppUrl()}/p/${product.id}`} />
+            <ShareButton path={`/p/${product.id}`} />
           </div>
         </section>
 

@@ -1,5 +1,26 @@
 import Link from "next/link";
+import { Metadata } from "next";
 import { prisma } from "@/lib/db";
+import { getAppUrl } from "@/lib/utils";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const title = "Vendedores | Marketplace";
+  const description = "Explora los catálogos de todos los vendedores registrados en el marketplace.";
+  const url = `${getAppUrl()}/vendedores`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: "/vendedores" },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "website",
+      siteName: "Marketplace",
+    },
+  };
+}
 
 export default async function VendorsPage() {
   const vendors = await prisma.vendorProfile.findMany({

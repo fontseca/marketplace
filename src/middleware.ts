@@ -7,6 +7,7 @@ export default clerkMiddleware({
     "/api/products/search",
     "/api/products(.*)",
     "/api/categories(.*)",
+    "/api/events",
     "/complete-profile",
   ],
 });

@@ -1,13 +1,49 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import { Badge } from "@/components/ui/badge";
 import { ProductCard } from "@/components/products/product-card";
 import { ShareCatalogButton } from "@/components/vendors/share-catalog-button";
 import { getVendorWithProducts } from "@/lib/queries";
+import { getAppUrl } from "@/lib/utils";
 
 type Props = { params: Promise<{ slug: string }> };
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const vendor = await getVendorWithProducts(slug);
+  if (!vendor) return {};
+
+  // Get image: prefer banner, then avatar, then first product image
+  let image: string | undefined;
+  if (vendor.bannerUrl) {
+    image = vendor.bannerUrl;
+  } else if (vendor.avatarUrl) {
+    image = vendor.avatarUrl;
+  } else if (vendor.products.length > 0 && vendor.products[0].images.length > 0) {
+    image = vendor.products[0].images[0].url;
+  }
+
+  const title = `${vendor.displayName} | Marketplace`;
+  const description = vendor.bio ?? `Catálogo de productos de ${vendor.displayName}`;
+  const url = `${getAppUrl()}/v/${slug}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/v/${slug}` },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "profile",
+      siteName: "Marketplace",
+      images: image ? [{ url: image, alt: vendor.displayName }] : undefined,
+    },
+  };
+}
 
 export default async function VendorProfilePage({ params }: Props) {
   const { slug } = await params;
