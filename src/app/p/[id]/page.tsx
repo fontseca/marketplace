@@ -61,64 +61,34 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-      <div className="space-y-6">
+      <div className="space-y-6 order-1 lg:col-start-1">
         <ProductGallery
           images={product.images.map((img) => ({
             url: img.url,
             alt: img.alt ?? undefined,
           }))}
         />
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-900">Descripción</h2>
-          <p className="mt-2 whitespace-pre-line text-slate-700">
-            {product.description}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-3 text-sm text-slate-600">
-            {(product.brand || product.brandName) && (
-              <Badge variant="secondary">Marca: {product.brand?.name ?? product.brandName}</Badge>
-            )}
-            {product.category && (
-              <Badge variant="secondary">Categoría: {product.category.name}</Badge>
-            )}
-            <Badge variant="secondary">
-              Stock: {product.stock > 0 ? product.stock : "Sin stock"}
-            </Badge>
-          </div>
-        </section>
-
-        {similarProducts.length > 0 && (
-          <section className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-slate-900">
-                Productos similares
-              </h3>
-              <p className="text-sm text-slate-500">{similarProducts.length} items</p>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {similarProducts.map((item) => (
-                <ProductCard key={item.id} product={item} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {bestSellers.length > 0 && (
-          <section className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-slate-900">
-                Te podría interesar
-              </h3>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {bestSellers.map((item) => (
-                <ProductCard key={item.id} product={item} />
-              ))}
-            </div>
-          </section>
-        )}
       </div>
 
-      <aside className="space-y-6">
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm order-2 lg:col-start-1">
+        <h2 className="text-xl font-semibold text-slate-900">Descripción</h2>
+        <p className="mt-2 whitespace-pre-line text-slate-700">
+          {product.description}
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3 text-sm text-slate-600">
+          {(product.brand || product.brandName) && (
+            <Badge variant="secondary">Marca: {product.brand?.name ?? product.brandName}</Badge>
+          )}
+          {product.category && (
+            <Badge variant="secondary">Categoría: {product.category.name}</Badge>
+          )}
+          <Badge variant="secondary">
+            Stock: {product.stock > 0 ? product.stock : "Sin stock"}
+          </Badge>
+        </div>
+      </section>
+
+      <aside className="space-y-6 order-3 lg:col-start-2 lg:row-start-1">
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -214,6 +184,37 @@ export default async function ProductPage({ params }: Props) {
           </section>
         )}
       </aside>
+
+      {similarProducts.length > 0 && (
+        <section className="flex flex-col gap-3 order-4 lg:col-start-1">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-slate-900">
+              Productos similares
+            </h3>
+            <p className="text-sm text-slate-500">{similarProducts.length} items</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {similarProducts.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {bestSellers.length > 0 && (
+        <section className="flex flex-col gap-3 order-5 lg:col-start-1">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-slate-900">
+              Te podría interesar
+            </h3>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {bestSellers.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
