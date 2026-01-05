@@ -11,11 +11,13 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, week } = await params;
-  const vendor = await prisma.vendorProfile.findUnique({
+  const shareLink = await prisma.catalogShareLink.findUnique({
     where: { slug },
+    include: { vendor: true },
   });
-  if (!vendor) return {};
+  if (!shareLink) return {};
 
+  const vendor = shareLink.vendor;
   const products = await getSharedCatalogProducts(vendor.id, week);
   const firstProductImage = products[0]?.images[0]?.url;
   
@@ -40,11 +42,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function SharedCatalogPage({ params }: Props) {
   const { slug, week } = await params;
-  const vendor = await prisma.vendorProfile.findUnique({
+  const shareLink = await prisma.catalogShareLink.findUnique({
     where: { slug },
+    include: { vendor: true },
   });
-  if (!vendor) return notFound();
+  if (!shareLink) return notFound();
 
+  // Ensure the week parameter matches the share link's week label
+  if (shareLink.weekLabel !== week) {
+    return notFound();
+  }
+
+  const vendor = shareLink.vendor;
   const products = await getSharedCatalogProducts(vendor.id, week);
 
   return (
