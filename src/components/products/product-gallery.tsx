@@ -32,9 +32,9 @@ export function ProductGallery({ images }: GalleryProps) {
   const currentImageUrl = useMemo(() => current ? getImageUrl(current.url) : null, [current]);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 w-full">
       <div
-        className="relative aspect-square w-full cursor-pointer overflow-hidden rounded-3xl border border-slate-200 bg-slate-50"
+        className="relative aspect-square w-full max-w-full cursor-pointer overflow-hidden rounded-3xl border border-slate-200 bg-slate-50"
         onClick={() => setOpen(true)}
       >
         {currentImageUrl ? (
@@ -42,7 +42,7 @@ export function ProductGallery({ images }: GalleryProps) {
             src={currentImageUrl}
             alt={current.alt ?? "Imagen del producto"}
             fill
-            sizes="(max-width: 768px) 100vw, 50vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 50vw"
             className="h-full w-full object-cover"
             unoptimized={currentImageUrl.includes("/api/images/proxy")}
           />
@@ -51,32 +51,35 @@ export function ProductGallery({ images }: GalleryProps) {
         )}
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {images.map((img, index) => {
-          const imageUrl = getImageUrl(img.url);
-          return (
-            <button
-              key={img.url}
-              className={cn(
-                "relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border",
-                active === index
-                  ? "border-blue-500 ring-2 ring-blue-200"
-                  : "border-slate-200",
-              )}
-              onClick={() => setActive(index)}
-            >
-              <Image
-                src={imageUrl}
-                alt={img.alt ?? "Imagen del producto"}
-                fill
-                sizes="80px"
-                className="object-cover"
-                unoptimized={imageUrl.includes("/api/images/proxy")}
-              />
-            </button>
-          );
-        })}
-      </div>
+      {images.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {images.map((img, index) => {
+            const imageUrl = getImageUrl(img.url);
+            return (
+              <button
+                key={img.url}
+                className={cn(
+                  "relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border transition-all",
+                  active === index
+                    ? "border-blue-500 ring-2 ring-blue-200"
+                    : "border-slate-200 hover:border-slate-300",
+                )}
+                onClick={() => setActive(index)}
+                aria-label={`Ver imagen ${index + 1}`}
+              >
+                <Image
+                  src={imageUrl}
+                  alt={img.alt ?? `Imagen del producto ${index + 1}`}
+                  fill
+                  sizes="80px"
+                  className="object-cover"
+                  unoptimized={imageUrl.includes("/api/images/proxy")}
+                />
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {open && currentImageUrl && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
@@ -91,7 +94,7 @@ export function ProductGallery({ images }: GalleryProps) {
               src={currentImageUrl}
               alt={current.alt ?? "Imagen del producto"}
               fill
-              sizes="100vw"
+              sizes="(max-width: 1024px) 100vw, 1024px"
               className="object-contain"
               unoptimized={currentImageUrl.includes("/api/images/proxy")}
             />

@@ -83,8 +83,8 @@ export default async function ProductPage({ params }: Props) {
   const price = Number(product.salePrice ?? product.regularPrice);
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-      <div className="space-y-6 order-1 lg:col-start-1">
+    <div className="grid gap-6 sm:gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="space-y-6 order-1 lg:col-start-1 w-full">
         <ProductGallery
           images={product.images.map((img) => ({
             url: img.url,

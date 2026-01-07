@@ -19,23 +19,40 @@ type ProductCardProps = {
   };
 };
 
+// Helper to get image URL - use proxy for S3 images to avoid CORS
+function getImageUrl(url: string): string {
+  if (!url) return url;
+  // If it's an S3 URL, use the proxy
+  if (url.includes("s3.") || url.includes("amazonaws.com")) {
+    return `/api/images/proxy?url=${encodeURIComponent(url)}`;
+  }
+  // If it's a relative URL, use it directly
+  if (url.startsWith("/")) {
+    return url;
+  }
+  // For other absolute URLs, use them directly
+  return url;
+}
+
 export function ProductCard({ product }: ProductCardProps) {
   const price = Number(product.salePrice ?? product.regularPrice);
   const hasSale = Boolean(product.salePrice);
   const image = product.images?.[0]?.url;
+  const imageUrl = image ? getImageUrl(image) : null;
 
   return (
     <Link href={`/p/${product.id}`}>
       <Card className="group flex h-full flex-col overflow-hidden">
         <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
-          {image ? (
+          {imageUrl ? (
             <Image
-              src={image}
+              src={imageUrl}
               alt={product.name}
               fill
-              sizes="(max-width: 768px) 100vw, 33vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
               priority={false}
+              unoptimized={imageUrl.includes("/api/images/proxy")}
             />
           ) : (
             <div className="h-full w-full" />
