@@ -12,7 +12,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Faltan datos" }, { status: 400 });
   }
 
-  const key = `${profile.id}/${randomUUID()}-${fileName}`;
+  const fileExtension = fileName.split(".").pop() || "bin";
+  const uuidFileName = `${randomUUID()}.${fileExtension}`;
+  const key = `${profile.id}/${uuidFileName}`;
   try {
     const uploadUrl = await createPresignedUpload({ key, contentType });
     return NextResponse.json({ uploadUrl, key });

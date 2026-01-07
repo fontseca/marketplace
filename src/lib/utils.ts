@@ -5,12 +5,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatCurrency(amount: number | string | bigint, locale = "es-ES") {
+export function formatCurrency(amount: number | string | bigint, locale?: string) {
   const value = typeof amount === "bigint" ? Number(amount) : Number(amount ?? 0);
-  return new Intl.NumberFormat(locale, {
+  // Use en-US locale for USD to ensure periods are used for decimals (not commas)
+  // This follows the standard USD formatting convention
+  const formatLocale = locale || "en-US";
+  return new Intl.NumberFormat(formatLocale, {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(value);
 }
 

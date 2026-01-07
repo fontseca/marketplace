@@ -12,43 +12,60 @@ type Props = { params: Promise<{ slug: string }> };
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const vendor = await getVendorWithProducts(slug);
-  if (!vendor) return {};
+  try {
+    const { slug } = await params;
+    const vendor = await getVendorWithProducts(slug);
+    if (!vendor) return {};
 
-  // Get image: prefer banner, then avatar, then first product image
-  let image: string | undefined;
-  if (vendor.bannerUrl) {
-    image = vendor.bannerUrl;
-  } else if (vendor.avatarUrl) {
-    image = vendor.avatarUrl;
-  } else if (vendor.products.length > 0 && vendor.products[0].images.length > 0) {
-    image = vendor.products[0].images[0].url;
-  }
+    // Get image: prefer banner, then avatar, then first product image
+    let image: string | undefined;
+    if (vendor.bannerUrl) {
+      image = vendor.bannerUrl;
+    } else if (vendor.avatarUrl) {
+      image = vendor.avatarUrl;
+    } else if (vendor.products.length > 0 && vendor.products[0].images.length > 0) {
+      image = vendor.products[0].images[0].url;
+    }
 
-  const title = `${vendor.displayName} | Marketplace`;
-  const description = vendor.bio ?? `Catálogo de productos de ${vendor.displayName}`;
-  const url = `${getAppUrl()}/v/${slug}`;
+    const title = `${vendor.displayName} | Marketplace`;
+    const description = vendor.bio ?? `Catálogo de productos de ${vendor.displayName}`;
+    const url = `${getAppUrl()}/v/${slug}`;
 
-  return {
-    title,
-    description,
-    alternates: { canonical: `/v/${slug}` },
-    openGraph: {
+    return {
       title,
       description,
-      url,
-      type: "profile",
-      siteName: "Marketplace",
-      images: image ? [{ url: image, alt: vendor.displayName }] : undefined,
-    },
-  };
+      alternates: { canonical: `/v/${slug}` },
+      openGraph: {
+        title,
+        description,
+        url,
+        type: "profile",
+        siteName: "Marketplace",
+        images: image ? [{ url: image, alt: vendor.displayName }] : undefined,
+      },
+    };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    return {};
+  }
 }
 
 export default async function VendorProfilePage({ params }: Props) {
   const { slug } = await params;
-  const vendor = await getVendorWithProducts(slug);
-  if (!vendor) return notFound();
+  
+  let vendor;
+  try {
+    vendor = await getVendorWithProducts(slug);
+    if (!vendor) return notFound();
+  } catch (error: any) {
+    console.error("Error loading vendor:", error);
+    // If it's a database connection issue, return not found
+    if (error?.code === "P1001" || error?.code === "P1017") {
+      return notFound();
+    }
+    // Re-throw other errors to be handled by error boundary
+    throw error;
+  }
 
   return (
     <div className="flex flex-col gap-8">

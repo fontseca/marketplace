@@ -22,39 +22,62 @@ type Props = {
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
-  const product = await getProductDetail(id);
-  if (!product) return {};
-  const image = product.images[0]?.url;
-  const title = `${product.name} | ${product.brand?.name ?? "Producto"}`;
-  const description = product.description.slice(0, 160);
-  const url = `${getAppUrl()}/p/${product.id}`;
+  try {
+    const { id } = await params;
+    const product = await getProductDetail(id);
+    if (!product) return {};
+    const image = product.images[0]?.url;
+    const title = `${product.name} | ${product.brand?.name ?? "Producto"}`;
+    const description = product.description.slice(0, 160);
+    const url = `${getAppUrl()}/p/${product.id}`;
 
-  return {
-    title,
-    description,
-    alternates: { canonical: `/p/${product.id}` },
-    openGraph: {
+    return {
       title,
       description,
-      url,
-      type: "website",
-      siteName: "Marketplace",
-      images: image ? [{ url: image, alt: product.name }] : undefined,
-    },
-  };
+      alternates: { canonical: `/p/${product.id}` },
+      openGraph: {
+        title,
+        description,
+        url,
+        type: "website",
+        siteName: "Marketplace",
+        images: image ? [{ url: image, alt: product.name }] : undefined,
+      },
+    };
+  } catch (error) {
+    // Return empty metadata on error to prevent metadata generation from crashing
+    console.error("Error generating metadata:", error);
+    return {};
+  }
 }
 
 export default async function ProductPage({ params }: Props) {
   const { id } = await params;
-  const product = await getProductDetail(id);
-  if (!product) return notFound();
+  
+  let product;
+  let moreFromVendor: Awaited<ReturnType<typeof getMoreFromVendor>> = [];
+  let similarProducts: Awaited<ReturnType<typeof getSimilarProducts>> = [];
+  let bestSellers: Awaited<ReturnType<typeof getBestSellers>> = [];
 
-  const [moreFromVendor, similarProducts, bestSellers] = await Promise.all([
-    getMoreFromVendor(product.vendorId, product.id),
-    getSimilarProducts(product.id, product.vendorId),
-    getBestSellers(),
-  ]);
+  try {
+    product = await getProductDetail(id);
+    if (!product) return notFound();
+
+    [moreFromVendor, similarProducts, bestSellers] = await Promise.all([
+      getMoreFromVendor(product.vendorId, product.id).catch(() => []),
+      getSimilarProducts(product.id, product.vendorId).catch(() => []),
+      getBestSellers().catch(() => []),
+    ]);
+  } catch (error: any) {
+    // Handle database errors gracefully
+    console.error("Error loading product:", error);
+    // If it's a database connection issue, return not found
+    if (error?.code === "P1001" || error?.code === "P1017") {
+      return notFound();
+    }
+    // Re-throw other errors to be handled by error boundary
+    throw error;
+  }
 
   const hasSale = Boolean(product.salePrice);
   const price = Number(product.salePrice ?? product.regularPrice);

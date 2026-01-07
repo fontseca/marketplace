@@ -39,7 +39,9 @@ export async function POST(request: Request) {
     }
 
     const arrayBuffer = await file.arrayBuffer();
-    const key = `${profile.id}/${randomUUID()}-${file.name}`;
+    const fileExtension = file.name.split(".").pop() || "bin";
+    const fileName = `${randomUUID()}.${fileExtension}`;
+    const key = `${profile.id}/${fileName}`;
     const buffer = Buffer.from(arrayBuffer);
 
     // Intentar subir a S3 primero

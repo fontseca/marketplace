@@ -10,51 +10,73 @@ type Props = { params: Promise<{ slug: string; week: string }> };
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug, week } = await params;
-  const shareLink = await prisma.catalogShareLink.findUnique({
-    where: { slug },
-    include: { vendor: true },
-  });
-  if (!shareLink) return {};
+  try {
+    const { slug, week } = await params;
+    const shareLink = await prisma.catalogShareLink.findUnique({
+      where: { slug },
+      include: { vendor: true },
+    });
+    if (!shareLink) return {};
 
-  const vendor = shareLink.vendor;
-  const products = await getSharedCatalogProducts(vendor.id, week);
-  const firstProductImage = products[0]?.images[0]?.url;
-  
-  const title = `${vendor.displayName} - Catálogo Semana ${week} | Marketplace`;
-  const description = `Productos disponibles para la semana ${week}. Incluye existencias actuales y nuevos ingresos durante la semana.`;
-  const url = `${getAppUrl()}/v/${slug}/share/${week}`;
+    const vendor = shareLink.vendor;
+    const products = await getSharedCatalogProducts(vendor.id, week).catch(() => []);
+    const firstProductImage = products[0]?.images[0]?.url;
+    
+    const title = `${vendor.displayName} - Catálogo Semana ${week} | Marketplace`;
+    const description = `Productos disponibles para la semana ${week}. Incluye existencias actuales y nuevos ingresos durante la semana.`;
+    const url = `${getAppUrl()}/v/${slug}/share/${week}`;
 
-  return {
-    title,
-    description,
-    alternates: { canonical: `/v/${slug}/share/${week}` },
-    openGraph: {
+    return {
       title,
       description,
-      url,
-      type: "website",
-      siteName: "Marketplace",
-      images: firstProductImage ? [{ url: firstProductImage, alt: `${vendor.displayName} - Catálogo Semana ${week}` }] : undefined,
-    },
-  };
+      alternates: { canonical: `/v/${slug}/share/${week}` },
+      openGraph: {
+        title,
+        description,
+        url,
+        type: "website",
+        siteName: "Marketplace",
+        images: firstProductImage ? [{ url: firstProductImage, alt: `${vendor.displayName} - Catálogo Semana ${week}` }] : undefined,
+      },
+    };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    return {};
+  }
 }
 
 export default async function SharedCatalogPage({ params }: Props) {
   const { slug, week } = await params;
-  const shareLink = await prisma.catalogShareLink.findUnique({
-    where: { slug },
-    include: { vendor: true },
-  });
-  if (!shareLink) return notFound();
+  
+  let shareLink;
+  let products: Awaited<ReturnType<typeof getSharedCatalogProducts>> = [];
+  
+  try {
+    shareLink = await prisma.catalogShareLink.findUnique({
+      where: { slug },
+      include: { vendor: true },
+    });
+    if (!shareLink) return notFound();
 
-  // Ensure the week parameter matches the share link's week label
-  if (shareLink.weekLabel !== week) {
-    return notFound();
+    // Ensure the week parameter matches the share link's week label
+    if (shareLink.weekLabel !== week) {
+      return notFound();
+    }
+
+    const vendor = shareLink.vendor;
+    products = await getSharedCatalogProducts(vendor.id, week).catch(() => []);
+  } catch (error: any) {
+    console.error("Error loading shared catalog:", error);
+    // If it's a database connection issue, return not found
+    if (error?.code === "P1001" || error?.code === "P1017") {
+      return notFound();
+    }
+    // Re-throw other errors to be handled by error boundary
+    throw error;
   }
-
+  
+  // shareLink is guaranteed to exist here since we would have returned notFound() if it didn't
   const vendor = shareLink.vendor;
-  const products = await getSharedCatalogProducts(vendor.id, week);
 
   return (
     <div className="flex flex-col gap-6">
