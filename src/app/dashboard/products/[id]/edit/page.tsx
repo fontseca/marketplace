@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requireVendorProfile, getSessionUser } from "@/lib/auth";
 import { ProductForm } from "@/components/products/product-form";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -45,9 +48,17 @@ export default async function EditProductPage({ params }: Props) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <p className="text-sm text-slate-500">Editar producto</p>
-        <h1 className="text-3xl font-bold text-slate-900">{product.name}</h1>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-slate-500">Editar producto</p>
+          <h1 className="text-3xl font-bold text-slate-900">{product.name}</h1>
+        </div>
+        <Link href="/dashboard/products">
+          <Button variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver
+          </Button>
+        </Link>
       </div>
       <ProductForm
         initialData={{
