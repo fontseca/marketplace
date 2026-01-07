@@ -49,7 +49,7 @@ export function ProductCard({ product }: ProductCardProps) {
               src={imageUrl}
               alt={product.name}
               fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
               priority={false}
               unoptimized={imageUrl.includes("/api/images/proxy")}
@@ -58,32 +58,32 @@ export function ProductCard({ product }: ProductCardProps) {
             <div className="h-full w-full" />
           )}
           {hasSale && (
-            <div className="absolute left-3 top-3">
-              <Badge variant="secondary">Oferta</Badge>
+            <div className="absolute left-2 top-2 sm:left-3 sm:top-3">
+              <Badge variant="secondary" className="text-xs">Oferta</Badge>
             </div>
           )}
         </div>
-        <div className="flex flex-1 flex-col gap-2 p-4">
+        <div className="flex flex-1 flex-col gap-1.5 sm:gap-2 p-3 sm:p-4">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-base font-semibold text-slate-900 line-clamp-2">
+            <h3 className="text-sm sm:text-base font-semibold text-slate-900 line-clamp-2 flex-1 min-w-0">
               {product.name}
             </h3>
-            <Badge variant="secondary">
+            <Badge variant="secondary" className="text-xs flex-shrink-0">
               {product.stock > 0 ? "En stock" : "Sin stock"}
             </Badge>
           </div>
           {product.vendor && (
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 truncate">
               por {product.vendor.displayName}
             </p>
           )}
-          <p className="text-sm text-slate-600 line-clamp-2">{product.description}</p>
+          <p className="text-xs sm:text-sm text-slate-600 line-clamp-2">{product.description}</p>
           <div className="mt-auto flex items-center gap-2">
-            <span className="text-lg font-semibold text-blue-700">
+            <span className="text-base sm:text-lg font-semibold text-blue-700">
               {formatCurrency(price)}
             </span>
             {hasSale && (
-              <span className="text-sm text-slate-400 line-through">
+              <span className="text-xs sm:text-sm text-slate-400 line-through">
                 {formatCurrency(Number(product.regularPrice))}
               </span>
             )}

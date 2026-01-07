@@ -32,9 +32,9 @@ export function ProductGallery({ images }: GalleryProps) {
   const currentImageUrl = useMemo(() => current ? getImageUrl(current.url) : null, [current]);
 
   return (
-    <div className="flex flex-col gap-3 w-full">
+    <div className="flex flex-col gap-2 sm:gap-3 w-full">
       <div
-        className="relative aspect-square w-full max-w-full sm:max-w-md lg:max-w-sm mx-auto cursor-pointer overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200 bg-slate-50"
+        className="relative aspect-square w-full max-w-full sm:max-w-md lg:max-w-sm mx-auto cursor-pointer overflow-hidden rounded-xl sm:rounded-2xl lg:rounded-3xl border border-slate-200 bg-slate-50"
         onClick={() => setOpen(true)}
       >
         {currentImageUrl ? (

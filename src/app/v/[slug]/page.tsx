@@ -68,14 +68,14 @@ export default async function VendorProfilePage({ params }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="flex flex-col gap-6 sm:gap-8">
+      <section className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <Badge variant="secondary">Vendedor</Badge>
-            <h1 className="mt-2 text-3xl font-bold text-slate-900">{vendor.displayName}</h1>
-            <p className="text-slate-600">{vendor.bio ?? "Información del vendedor"}</p>
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-slate-600">
+          <div className="flex-1 min-w-0">
+            <Badge variant="secondary" className="text-xs">Vendedor</Badge>
+            <h1 className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 truncate">{vendor.displayName}</h1>
+            <p className="text-sm sm:text-base text-slate-600">{vendor.bio ?? "Información del vendedor"}</p>
+            <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate-600">
               {vendor.whatsapp && (
                 <Link
                   href={`https://wa.me/${vendor.whatsapp.replace(/\D/g, "")}`}
@@ -95,15 +95,15 @@ export default async function VendorProfilePage({ params }: Props) {
         </div>
       </section>
 
-      <section className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-slate-900">Catálogo</h2>
-          <p className="text-sm text-slate-500">{vendor.products.length} productos</p>
+      <section className="flex flex-col gap-3 sm:gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <h2 className="text-lg sm:text-xl font-semibold text-slate-900">Catálogo</h2>
+          <p className="text-xs sm:text-sm text-slate-500">{vendor.products.length} productos</p>
         </div>
         {vendor.products.length === 0 ? (
-          <p className="text-slate-600">Aún no hay productos publicados.</p>
+          <p className="text-sm sm:text-base text-slate-600">Aún no hay productos publicados.</p>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
             {vendor.products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

@@ -83,27 +83,27 @@ export default async function Home({ searchParams }: HomeProps) {
       </section>
         */}
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <form className="grid gap-4 md:grid-cols-3">
+      <section className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+        <form className="flex flex-col gap-4 md:grid md:grid-cols-3">
           <div className="md:col-span-2">
-            <label className="text-sm font-semibold text-slate-700">
+            <label className="text-xs sm:text-sm font-semibold text-slate-700">
               Nombre
             </label>
             <input
               name="q"
               defaultValue={q ?? ""}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 sm:px-4 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               placeholder="Buscar por nombre"
             />
           </div>
           <div>
-            <label className="text-sm font-semibold text-slate-700">
+            <label className="text-xs sm:text-sm font-semibold text-slate-700">
               Categoría
             </label>
             <select
               name="category"
               defaultValue={category ?? ""}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 sm:px-4 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             >
               <option value="">Todas</option>
               {categories.map((c) => (
@@ -116,7 +116,7 @@ export default async function Home({ searchParams }: HomeProps) {
           <div className="md:col-span-3 flex justify-end">
             <button
               type="submit"
-              className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+              className="w-full sm:w-auto rounded-full bg-slate-900 px-5 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-slate-800"
             >
               Aplicar filtros
             </button>
@@ -124,21 +124,21 @@ export default async function Home({ searchParams }: HomeProps) {
         </form>
       </section>
 
-      <section className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-slate-900">
+      <section className="flex flex-col gap-3 sm:gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <h2 className="text-lg sm:text-xl font-semibold text-slate-900">
             Todos los productos
           </h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-xs sm:text-sm text-slate-500">
             Se muestran {products.length} resultados
           </p>
         </div>
         {products.length === 0 ? (
-          <p className="text-slate-600">
+          <p className="text-sm sm:text-base text-slate-600">
             No hay productos que coincidan con la búsqueda.
           </p>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -147,14 +147,14 @@ export default async function Home({ searchParams }: HomeProps) {
       </section>
 
       {bestSellers.length > 0 && (
-        <section className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">
+        <section className="flex flex-col gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <h2 className="text-lg sm:text-xl font-semibold text-slate-900">
               Productos más vendidos
             </h2>
-            <p className="text-sm text-slate-500">Top {bestSellers.length}</p>
+            <p className="text-xs sm:text-sm text-slate-500">Top {bestSellers.length}</p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
             {bestSellers.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

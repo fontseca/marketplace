@@ -83,8 +83,8 @@ export default async function ProductPage({ params }: Props) {
   const price = Number(product.salePrice ?? product.regularPrice);
 
   return (
-    <div className="grid gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-[1fr_1fr]">
-      <div className="space-y-4 sm:space-y-6 order-1 lg:col-start-1 w-full">
+    <div className="flex flex-col gap-4 sm:gap-6 lg:grid lg:grid-cols-[1fr_1fr] lg:gap-8">
+      <div className="space-y-4 sm:space-y-6 lg:col-start-1 w-full">
         <ProductGallery
           images={product.images.map((img) => ({
             url: img.url,
@@ -93,8 +93,8 @@ export default async function ProductPage({ params }: Props) {
         />
       </div>
 
-      <aside className="space-y-4 sm:space-y-6 order-2 lg:col-start-2 lg:row-start-1 lg:row-span-2">
-        <section className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+      <aside className="space-y-4 sm:space-y-6 lg:col-start-2 lg:row-start-1 lg:row-span-3">
+        <section className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <p className="text-sm text-slate-500">Vendido por</p>
@@ -123,7 +123,7 @@ export default async function ProductPage({ params }: Props) {
           </div>
 
           <div className="mt-4 space-y-2">
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900">
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900 break-words">
               {formatCurrency(price)}
             </div>
             {hasSale && (
@@ -134,7 +134,7 @@ export default async function ProductPage({ params }: Props) {
             {product.saleExpiresAt && <OfferCountdown expiresAt={product.saleExpiresAt} />}
           </div>
 
-          <div className="mt-4 sm:mt-6 space-y-3">
+          <div className="mt-4 sm:mt-6 space-y-2 sm:space-y-3">
             <PurchaseCta
               productId={product.id}
               vendorWhatsapp={product.vendor.whatsapp || product.vendor.user?.phone || undefined}
@@ -147,7 +147,7 @@ export default async function ProductPage({ params }: Props) {
         </section>
 
         {product.variants.length > 0 && (
-          <section className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+          <section className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
             <h3 className="text-base sm:text-lg font-semibold text-slate-900">Variantes</h3>
             <div className="mt-3 flex flex-col gap-2 text-sm text-slate-700">
               {product.variants.map((variant) => (
@@ -176,8 +176,8 @@ export default async function ProductPage({ params }: Props) {
 
         {moreFromVendor.length > 0 && (
           <section className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base sm:text-lg font-semibold text-slate-900">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-base sm:text-lg font-semibold text-slate-900 line-clamp-2">
                 Más productos de {product.vendor.displayName}
               </h3>
             </div>
@@ -190,8 +190,26 @@ export default async function ProductPage({ params }: Props) {
         )}
       </aside>
 
+      <section className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm lg:col-start-1 lg:row-start-2">
+        <h2 className="text-lg sm:text-xl font-semibold text-slate-900">Descripción</h2>
+        <p className="mt-2 whitespace-pre-line text-sm sm:text-base text-slate-700">
+          {product.description}
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm text-slate-600">
+          {(product.brand || product.brandName) && (
+            <Badge variant="secondary" className="text-xs">Marca: {product.brand?.name ?? product.brandName}</Badge>
+          )}
+          {product.category && (
+            <Badge variant="secondary" className="text-xs">Categoría: {product.category.name}</Badge>
+          )}
+          <Badge variant="secondary" className="text-xs">
+            Stock: {product.stock > 0 ? product.stock : "Sin stock"}
+          </Badge>
+        </div>
+      </section>
+
       {similarProducts.length > 0 && (
-        <section className="flex flex-col gap-3 order-4 lg:col-start-1 lg:row-start-4">
+        <section className="flex flex-col gap-3 lg:col-start-1 lg:row-start-4">
           <div className="flex items-center justify-between">
             <h3 className="text-base sm:text-lg font-semibold text-slate-900">
               Productos similares
@@ -207,7 +225,7 @@ export default async function ProductPage({ params }: Props) {
       )}
 
       {bestSellers.length > 0 && (
-        <section className="flex flex-col gap-3 order-5 lg:col-start-1 lg:row-start-5">
+        <section className="flex flex-col gap-3 lg:col-start-1 lg:row-start-5">
           <div className="flex items-center justify-between">
             <h3 className="text-base sm:text-lg font-semibold text-slate-900">
               Te podría interesar
