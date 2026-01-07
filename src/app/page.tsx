@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getHomeProducts, getBestSellers } from "@/lib/queries";
 import { ProductCard } from "@/components/products/product-card";
 import { SearchBar } from "@/components/search/search-bar";
+import { SellerCtaBanner } from "@/components/home/seller-cta-banner";
 import { getAppUrl } from "@/lib/utils";
 
 type HomeProps = {
@@ -62,26 +63,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
   return (
     <div className="flex flex-col gap-10">
-      {/*
-        
-        <section className="rounded-3xl bg-gradient-to-r from-blue-50 to-purple-50 p-8 shadow-sm">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-sm font-semibold text-blue-700">Marketplace</p>
-            <h1 className="text-3xl font-bold text-slate-900">
-              Catálogo moderno para perfumes, ropa, bolsos, peluches y más
-            </h1>
-            <p className="mt-2 text-slate-600">
-              Explora publicaciones de vendedores verificados, filtra por precio, marca o
-              categoría y contacta por WhatsApp.
-            </p>
-          </div>
-          <div className="w-full max-w-md">
-            <SearchBar placeholder="Buscar productos..." />
-          </div>
-        </div>
-      </section>
-        */}
+      <SellerCtaBanner />
 
       <section className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
         <form className="flex flex-col gap-4 md:grid md:grid-cols-3">

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { getAppUrl, formatCurrency } from "@/lib/utils";
 import {
   getProductDetail,
@@ -118,10 +119,18 @@ export default async function ProductPage({ params }: Props) {
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <p className="text-sm text-slate-500">Vendido por</p>
-              <p className="text-lg font-semibold text-slate-900 truncate">
+              <Link 
+                href={`/v/${product.vendor.slug}`}
+                className="text-lg font-semibold text-slate-900 truncate hover:text-blue-600 hover:underline block"
+              >
                 {product.vendor.displayName}
-              </p>
-              <p className="text-sm text-slate-500 truncate">@{product.vendor.slug}</p>
+              </Link>
+              <Link 
+                href={`/v/${product.vendor.slug}`}
+                className="text-sm text-slate-500 truncate hover:text-blue-600 hover:underline block"
+              >
+                @{product.vendor.slug}
+              </Link>
             </div>
             {product.images[0]?.url && (() => {
               const imageUrl = product.images[0].url.includes("s3.") || product.images[0].url.includes("amazonaws.com")

@@ -82,14 +82,20 @@ export function ProductGallery({ images }: GalleryProps) {
       )}
 
       {open && currentImageUrl && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+          onClick={() => setOpen(false)}
+        >
           <button
-            className="absolute right-4 top-4 text-white"
+            className="absolute right-4 top-4 text-white z-10"
             onClick={() => setOpen(false)}
           >
             <X className="h-6 w-6" />
           </button>
-          <div className="relative h-[80vh] w-full max-w-4xl overflow-hidden rounded-3xl">
+          <div 
+            className="relative h-[80vh] w-full max-w-4xl overflow-hidden rounded-3xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Image
               src={currentImageUrl}
               alt={current.alt ?? "Imagen del producto"}

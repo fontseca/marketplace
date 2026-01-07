@@ -22,23 +22,23 @@ export async function POST(request: Request) {
     }
   } else {
     // If no vendor slug, use logged-in user (requires auth)
-    const session = await getSessionUser();
-    if (!session) {
-      return NextResponse.json(
-        { error: "No autorizado. Por favor inicia sesión." },
-        { status: 401 }
-      );
-    }
+  const session = await getSessionUser();
+  if (!session) {
+    return NextResponse.json(
+      { error: "No autorizado. Por favor inicia sesión." },
+      { status: 401 }
+    );
+  }
 
     profile = await prisma.vendorProfile.findUnique({
-      where: { userId: session.dbUser.id },
-    });
+    where: { userId: session.dbUser.id },
+  });
 
-    if (!profile) {
-      return NextResponse.json(
-        { error: "Perfil de vendedor no encontrado" },
-        { status: 403 }
-      );
+  if (!profile) {
+    return NextResponse.json(
+      { error: "Perfil de vendedor no encontrado" },
+      { status: 403 }
+    );
     }
   }
 
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     while (attempts < maxAttempts) {
       const existingSlug = await prisma.catalogShareLink.findUnique({
         where: { slug },
-      });
+    });
       
       if (!existingSlug) {
         break; // Slug is available
@@ -66,8 +66,8 @@ export async function POST(request: Request) {
       // If slug exists and belongs to this vendor, we'll update it
       if (existingSlug.vendorId === profile.id) {
         break;
-      }
-      
+    }
+
       // Otherwise, try with a random suffix
       slug = `${profile.slug}-catalog-${Math.random().toString(36).slice(2, 7)}`;
       attempts++;
@@ -92,13 +92,13 @@ export async function POST(request: Request) {
     } else {
       // Create new link
       link = await prisma.catalogShareLink.create({
-        data: {
-          vendorId: profile.id,
-          slug,
+      data: {
+        vendorId: profile.id,
+        slug,
           weekLabel: "all", // Placeholder value, not used anymore
-          expiresAt,
-        },
-      });
+        expiresAt,
+      },
+    });
     }
 
     return NextResponse.json({ ...link, vendorSlug: profile.slug }, { status: existing ? 200 : 201 });
