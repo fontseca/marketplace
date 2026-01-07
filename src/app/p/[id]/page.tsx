@@ -84,7 +84,7 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6 lg:grid lg:grid-cols-[1fr_1fr] lg:gap-8">
-      <div className="space-y-4 sm:space-y-6 lg:col-start-1 w-full">
+      <div className="space-y-4 sm:space-y-6 lg:col-start-1 w-full min-w-0 overflow-hidden">
         <ProductGallery
           images={product.images.map((img) => ({
             url: img.url,
@@ -93,7 +93,7 @@ export default async function ProductPage({ params }: Props) {
         />
       </div>
 
-      <aside className="space-y-4 sm:space-y-6 lg:col-start-2 lg:row-start-1 lg:row-span-3">
+      <aside className="space-y-4 sm:space-y-6 lg:col-start-2 lg:row-start-1 min-w-0">
         <section className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
