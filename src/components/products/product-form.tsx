@@ -150,11 +150,19 @@ export function ProductForm({ initialData, categories }: Props) {
       
       if (!res.ok) {
         let errorData: any;
+        // Clone the response so we can read it multiple times if needed
+        const clonedRes = res.clone();
         try {
           errorData = await res.json();
         } catch {
-          const errorText = await res.text();
-          errorData = { error: errorText };
+          // If JSON parsing fails, read as text from the cloned response
+          try {
+            const errorText = await clonedRes.text();
+            errorData = { error: errorText };
+          } catch {
+            // If both fail, use a generic error message
+            errorData = { error: `Error ${res.status}: ${res.statusText}` };
+          }
         }
         console.error("Error creating product:", errorData);
         
@@ -208,7 +216,12 @@ export function ProductForm({ initialData, categories }: Props) {
         alert("Producto creado pero hubo un error al subir las imágenes. Puedes editarlo más tarde.");
       }
       
-      router.push("/dashboard/products");
+      // After editing, redirect back to the edit page. After creating, redirect to products list.
+      if (initialData?.id) {
+        router.push(`/dashboard/products/${initialData.id}/edit`);
+      } else {
+        router.push("/dashboard/products");
+      }
     } catch (error) {
       console.error("Error al enviar el formulario:", error);
       alert(`Error inesperado: ${error instanceof Error ? error.message : "Error desconocido"}`);

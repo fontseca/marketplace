@@ -61,20 +61,27 @@ export async function GET(_: Request, { params }: Params) {
 }
 
 export async function PATCH(request: Request, { params }: Params) {
-  const session = await getSessionUser();
-  if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  const { id } = await params;
+  try {
+    const session = await getSessionUser();
+    if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    const { id } = await params;
 
-  const { product, allowed } = await authorizeProduct(id, session.dbUser.id);
-  if (!allowed || !product) {
-    return NextResponse.json({ error: "Sin permisos" }, { status: 403 });
-  }
+    const { product, allowed } = await authorizeProduct(id, session.dbUser.id);
+    if (!allowed || !product) {
+      return NextResponse.json({ error: "Sin permisos" }, { status: 403 });
+    }
 
-  const body = await request.json();
-  
-  // Create a more lenient schema for updates that allows partial data
-  // For updates, images can be empty (they're updated separately)
-  const updateSchema = z.object({
+    let body;
+    try {
+      body = await request.json();
+    } catch (error) {
+      console.error("Error parsing request body:", error);
+      return NextResponse.json({ error: "Cuerpo de la solicitud inválido" }, { status: 400 });
+    }
+    
+    // Create a more lenient schema for updates that allows partial data
+    // For updates, images can be empty (they're updated separately)
+    const updateSchema = z.object({
     name: z.string().min(3, "El nombre debe tener al menos 3 caracteres").optional(),
     description: z.string().optional(),
     brandName: z.string().min(1, "Marca requerida").max(100).optional().nullable(),
@@ -111,33 +118,33 @@ export async function PATCH(request: Request, { params }: Params) {
       price: z.number().optional().nullable(),
       stock: z.number().int().min(0).default(0),
     })).optional(),
-  });
-  
-  const parsed = updateSchema.safeParse(body);
-  if (!parsed.success) {
-    console.error("Validation error:", JSON.stringify(parsed.error.format(), null, 2));
-    return NextResponse.json({ 
-      error: "Error de validación",
-      details: parsed.error.format() 
-    }, { status: 400 });
-  }
-
-  const data = parsed.data;
-
-  let brandId = product.brandId;
-  if (data.brandName && data.brandName.trim().length > 0) {
-    const brandSlug = slugify(data.brandName);
-    const brand = await prisma.brand.upsert({
-      where: { vendorId_slug: { vendorId: product.vendorId, slug: brandSlug } },
-      update: { name: data.brandName },
-      create: { vendorId: product.vendorId, name: data.brandName, slug: brandSlug },
     });
-    brandId = brand.id;
-  } else if (data.brandName === null) {
-    brandId = null;
-  }
+    
+    const parsed = updateSchema.safeParse(body);
+    if (!parsed.success) {
+      console.error("Validation error:", JSON.stringify(parsed.error.format(), null, 2));
+      return NextResponse.json({ 
+        error: "Error de validación",
+        details: parsed.error.format() 
+      }, { status: 400 });
+    }
 
-  const updated = await prisma.product.update({
+    const data = parsed.data;
+
+    let brandId = product.brandId;
+    if (data.brandName && data.brandName.trim().length > 0) {
+      const brandSlug = slugify(data.brandName);
+      const brand = await prisma.brand.upsert({
+        where: { vendorId_slug: { vendorId: product.vendorId, slug: brandSlug } },
+        update: { name: data.brandName },
+        create: { vendorId: product.vendorId, name: data.brandName, slug: brandSlug },
+      });
+      brandId = brand.id;
+    } else if (data.brandName === null) {
+      brandId = null;
+    }
+
+    const updated = await prisma.product.update({
     where: { id: product.id },
     data: {
       name: data.name ?? product.name,
@@ -183,9 +190,16 @@ export async function PATCH(request: Request, { params }: Params) {
       images: { orderBy: { position: "asc" } },
       variants: true,
     },
-  });
+    });
 
-  return NextResponse.json(updated);
+    return NextResponse.json(updated);
+  } catch (error: any) {
+    console.error("Error updating product:", error);
+    return NextResponse.json(
+      { error: "Error al actualizar el producto", details: error.message },
+      { status: 500 }
+    );
+  }
 }
 
 export async function DELETE(_: Request, { params }: Params) {
