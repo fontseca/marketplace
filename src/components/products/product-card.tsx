@@ -68,8 +68,8 @@ export function ProductCard({ product }: ProductCardProps) {
             <h3 className="text-sm sm:text-base font-semibold text-slate-900 line-clamp-2 flex-1 min-w-0">
               {product.name}
             </h3>
-            <Badge variant="secondary" className="text-xs flex-shrink-0">
-              {product.stock > 0 ? "En stock" : "Sin stock"}
+            <Badge variant={product.stock > 0 ? "success" : "destructive"} className="text-xs flex-shrink-0">
+              {product.stock > 0 ? "Disponible" : "Agotado"}
             </Badge>
           </div>
           {product.vendor && (

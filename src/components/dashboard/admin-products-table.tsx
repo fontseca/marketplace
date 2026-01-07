@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { ConfirmDeleteModal } from "@/components/ui/confirm-delete-modal";
 import { Trash2 } from "lucide-react";
 
 type Product = {
@@ -29,15 +30,20 @@ type Props = {
 export function AdminProductsTable({ products: initialProducts }: Props) {
   const [products, setProducts] = useState(initialProducts);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
-  const handleDelete = async (productId: string) => {
-    if (!confirm("¿Estás seguro de que quieres eliminar este producto permanentemente? Esta acción no se puede deshacer.")) {
-      return;
-    }
+  const handleDeleteClick = (productId: string) => {
+    setSelectedProductId(productId);
+    setModalOpen(true);
+  };
 
-    setDeleting(productId);
+  const handleConfirmDelete = async () => {
+    if (!selectedProductId) return;
+
+    setDeleting(selectedProductId);
     try {
-      const res = await fetch(`/api/products/${productId}`, {
+      const res = await fetch(`/api/products/${selectedProductId}`, {
         method: "DELETE",
       });
 
@@ -47,10 +53,14 @@ export function AdminProductsTable({ products: initialProducts }: Props) {
       }
 
       // Remove product from local state
-      setProducts(products.filter((p) => p.id !== productId));
+      setProducts(products.filter((p) => p.id !== selectedProductId));
+      setModalOpen(false);
+      setSelectedProductId(null);
     } catch (error) {
       console.error("Error al eliminar producto:", error);
       alert(error instanceof Error ? error.message : "Error al eliminar el producto");
+      setModalOpen(false);
+      setSelectedProductId(null);
     } finally {
       setDeleting(null);
     }
@@ -116,7 +126,7 @@ export function AdminProductsTable({ products: initialProducts }: Props) {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => handleDelete(p.id)}
+                      onClick={() => handleDeleteClick(p.id)}
                       disabled={deleting === p.id}
                       className="text-red-600 hover:bg-red-50 hover:text-red-700"
                     >
@@ -129,6 +139,17 @@ export function AdminProductsTable({ products: initialProducts }: Props) {
           })}
         </tbody>
       </table>
+
+      <ConfirmDeleteModal
+        isOpen={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedProductId(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Eliminar producto"
+        message="¿Estás seguro de que quieres eliminar este producto permanentemente? Esta acción no se puede deshacer."
+      />
     </div>
   );
 }

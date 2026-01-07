@@ -58,3 +58,49 @@ export async function deleteS3Object(key: string): Promise<void> {
   );
 }
 
+/**
+ * Extracts S3 key from a URL if it's an S3 URL
+ * @param url - The URL to extract the key from
+ * @returns The S3 key if it's an S3 URL, null otherwise
+ */
+export function extractS3KeyFromUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  
+  // Check if it's an S3 URL
+  if (!url.includes("s3.") && !url.includes("amazonaws.com")) {
+    return null;
+  }
+  
+  // Skip local uploads
+  if (url.startsWith("/uploads/")) {
+    return null;
+  }
+  
+  try {
+    // Parse S3 URL format: https://bucket.s3.region.amazonaws.com/key
+    // or https://s3.region.amazonaws.com/bucket/key
+    const urlObj = new URL(url);
+    
+    // Format: https://bucket.s3.region.amazonaws.com/key
+    if (urlObj.hostname.includes(".s3.")) {
+      // Extract key from pathname (remove leading slash)
+      const key = urlObj.pathname.substring(1);
+      return key || null;
+    }
+    
+    // Format: https://s3.region.amazonaws.com/bucket/key
+    if (urlObj.hostname.startsWith("s3.")) {
+      const pathParts = urlObj.pathname.split("/").filter(Boolean);
+      if (pathParts.length >= 2) {
+        // Skip bucket name, return the rest as key
+        return pathParts.slice(1).join("/");
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("Error extracting S3 key from URL:", error);
+    return null;
+  }
+}
+

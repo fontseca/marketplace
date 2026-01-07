@@ -25,7 +25,7 @@ export function ShareCatalogButton({ vendorSlug }: Props) {
         throw new Error(data.error || "No se pudo crear el enlace");
       }
       const link = await res.json();
-      const url = buildShareUrl(`/v/${link.slug}/share/${link.weekLabel}`);
+      const url = buildShareUrl(`/v/${link.slug}/share`);
       await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);

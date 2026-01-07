@@ -62,6 +62,9 @@ export default async function AdminDashboard() {
           <Link href="/dashboard/vendors">
             <Button variant="outline">Vendedores</Button>
           </Link>
+          <Link href="/dashboard/admin/users">
+            <Button variant="outline">Gestionar usuarios</Button>
+          </Link>
         </div>
       </section>
     </div>

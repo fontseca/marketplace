@@ -17,19 +17,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const vendor = await getVendorWithProducts(slug);
     if (!vendor) return {};
 
+    const appUrl = getAppUrl();
+    
     // Get image: prefer banner, then avatar, then first product image
-    let image: string | undefined;
+    let imageUrl: string | undefined;
     if (vendor.bannerUrl) {
-      image = vendor.bannerUrl;
+      imageUrl = vendor.bannerUrl;
     } else if (vendor.avatarUrl) {
-      image = vendor.avatarUrl;
+      imageUrl = vendor.avatarUrl;
     } else if (vendor.products.length > 0 && vendor.products[0].images.length > 0) {
-      image = vendor.products[0].images[0].url;
+      imageUrl = vendor.products[0].images[0].url;
+    }
+    
+    // Ensure image URL is absolute for Open Graph
+    let absoluteImageUrl: string | undefined;
+    if (imageUrl) {
+      if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+        absoluteImageUrl = imageUrl;
+      } else if (imageUrl.startsWith("/")) {
+        absoluteImageUrl = `${appUrl}${imageUrl}`;
+      } else {
+        // For S3 URLs or other cases, use as-is (they should already be absolute)
+        absoluteImageUrl = imageUrl;
+      }
     }
 
     const title = `${vendor.displayName} | Marketplace`;
     const description = vendor.bio ?? `Catálogo de productos de ${vendor.displayName}`;
-    const url = `${getAppUrl()}/v/${slug}`;
+    const url = `${appUrl}/v/${slug}`;
 
     return {
       title,
@@ -41,7 +56,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         url,
         type: "profile",
         siteName: "Marketplace",
-        images: image ? [{ url: image, alt: vendor.displayName }] : undefined,
+        images: absoluteImageUrl ? [{ 
+          url: absoluteImageUrl, 
+          alt: vendor.displayName,
+          width: 1200,
+          height: 630,
+        }] : undefined,
       },
     };
   } catch (error) {

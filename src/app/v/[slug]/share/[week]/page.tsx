@@ -1,9 +1,8 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { prisma } from "@/lib/db";
-import { getSharedCatalogProducts } from "@/lib/queries";
 import { ProductCard } from "@/components/products/product-card";
-import { getAppUrl, formatWeekLabel } from "@/lib/utils";
+import { getAppUrl } from "@/lib/utils";
 
 type Props = { params: Promise<{ slug: string; week: string }> };
 
@@ -19,12 +18,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (!shareLink) return {};
 
     const vendor = shareLink.vendor;
-    const products = await getSharedCatalogProducts(vendor.id, week).catch(() => []);
-    const firstProductImage = products[0]?.images[0]?.url;
-    const friendlyWeek = formatWeekLabel(week);
     
-    const title = `${vendor.displayName} - Catálogo ${friendlyWeek} | Marketplace`;
-    const description = `Productos disponibles ${friendlyWeek}. Incluye existencias actuales y nuevos ingresos durante la semana.`;
+    // Get all published products from this vendor (not filtered by week)
+    const products = await prisma.product.findMany({
+      where: {
+        vendorId: vendor.id,
+        status: "published",
+      },
+      include: {
+        images: { orderBy: { position: "asc" } },
+      },
+      orderBy: [{ stock: "desc" }, { createdAt: "desc" }],
+    });
+    
+    const firstProductImage = products[0]?.images[0]?.url;
+    
+    const title = `${vendor.displayName} - Catálogo de productos | Marketplace`;
+    const description = `Catálogo completo de productos de ${vendor.displayName}.`;
     const url = `${getAppUrl()}/v/${slug}/share/${week}`;
 
     return {
@@ -37,7 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         url,
         type: "website",
         siteName: "Marketplace",
-        images: firstProductImage ? [{ url: firstProductImage, alt: `${vendor.displayName} - Catálogo ${friendlyWeek}` }] : undefined,
+        images: firstProductImage ? [{ url: firstProductImage, alt: `${vendor.displayName} - Catálogo de productos` }] : undefined,
       },
     };
   } catch (error) {
@@ -50,7 +60,7 @@ export default async function SharedCatalogPage({ params }: Props) {
   const { slug, week } = await params;
   
   let shareLink;
-  let products: Awaited<ReturnType<typeof getSharedCatalogProducts>> = [];
+  let products;
   
   try {
     shareLink = await prisma.catalogShareLink.findUnique({
@@ -65,7 +75,18 @@ export default async function SharedCatalogPage({ params }: Props) {
     }
 
     const vendor = shareLink.vendor;
-    products = await getSharedCatalogProducts(vendor.id, week).catch(() => []);
+    
+    // Get all published products from this vendor (not filtered by week)
+    products = await prisma.product.findMany({
+      where: {
+        vendorId: vendor.id,
+        status: "published",
+      },
+      include: {
+        images: { orderBy: { position: "asc" } },
+      },
+      orderBy: [{ stock: "desc" }, { createdAt: "desc" }],
+    });
   } catch (error: any) {
     console.error("Error loading shared catalog:", error);
     // If it's a database connection issue, return not found
@@ -78,7 +99,6 @@ export default async function SharedCatalogPage({ params }: Props) {
   
   // shareLink is guaranteed to exist here since we would have returned notFound() if it didn't
   const vendor = shareLink.vendor;
-  const friendlyWeek = formatWeekLabel(week);
 
   return (
     <div className="flex flex-col gap-6">
@@ -86,14 +106,13 @@ export default async function SharedCatalogPage({ params }: Props) {
         <p className="text-sm font-semibold text-blue-700">Catálogo de productos</p>
         <h1 className="text-3xl font-bold text-slate-900">{vendor.displayName}</h1>
         <p className="text-slate-600">
-          Productos disponibles {friendlyWeek}. Incluye existencias actuales
-          y nuevos ingresos durante la semana.
+          Catálogo completo de productos disponibles.
         </p>
       </header>
 
       {products.length === 0 ? (
         <p className="text-slate-600">
-          No hay productos disponibles para esta semana.
+          No hay productos disponibles.
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

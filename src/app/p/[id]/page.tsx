@@ -26,10 +26,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { id } = await params;
     const product = await getProductDetail(id);
     if (!product) return {};
-    const image = product.images[0]?.url;
+    const appUrl = getAppUrl();
+    const imageUrl = product.images[0]?.url;
+    
+    // Ensure image URL is absolute for Open Graph
+    let absoluteImageUrl: string | undefined;
+    if (imageUrl) {
+      if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+        absoluteImageUrl = imageUrl;
+      } else if (imageUrl.startsWith("/")) {
+        absoluteImageUrl = `${appUrl}${imageUrl}`;
+      } else {
+        // For S3 URLs or other cases, use as-is (they should already be absolute)
+        absoluteImageUrl = imageUrl;
+      }
+    }
+    
     const title = `${product.name} | ${product.brand?.name ?? "Producto"}`;
     const description = product.description.slice(0, 160);
-    const url = `${getAppUrl()}/p/${product.id}`;
+    const url = `${appUrl}/p/${product.id}`;
 
     return {
       title,
@@ -41,7 +56,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         url,
         type: "website",
         siteName: "Marketplace",
-        images: image ? [{ url: image, alt: product.name }] : undefined,
+        images: absoluteImageUrl ? [{ 
+          url: absoluteImageUrl, 
+          alt: product.name,
+          width: 1200,
+          height: 630,
+        }] : undefined,
       },
     };
   } catch (error) {

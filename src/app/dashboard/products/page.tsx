@@ -2,8 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requireVendorProfile, getSessionUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/utils";
 import { AdminProductsTable } from "@/components/dashboard/admin-products-table";
+import { VendorProductsTable } from "@/components/dashboard/vendor-products-table";
 
 export const dynamic = 'force-dynamic';
 
@@ -56,6 +56,13 @@ export default async function ProductsDashboardPage() {
     include: { images: { orderBy: { position: "asc" }, take: 1 } },
   });
 
+  // Convert Decimal to number for client component
+  const serializedProducts = products.map((p) => ({
+    ...p,
+    regularPrice: Number(p.regularPrice),
+    salePrice: p.salePrice ? Number(p.salePrice) : null,
+  }));
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -68,56 +75,7 @@ export default async function ProductsDashboardPage() {
         </Link>
       </div>
 
-      {products.length === 0 ? (
-        <p className="text-slate-600">Aún no hay productos. Crea tu primera publicación.</p>
-      ) : (
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <table className="min-w-full text-sm">
-            <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
-              <tr>
-                <th className="px-4 py-3">Producto</th>
-                <th className="px-4 py-3">Precio</th>
-                <th className="px-4 py-3">Stock</th>
-                <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p) => (
-                <tr key={p.id} className="border-t border-slate-100">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      {p.images[0]?.url && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={p.images[0].url}
-                          alt={p.name}
-                          className="h-10 w-10 rounded-lg object-cover"
-                        />
-                      )}
-                      <div>
-                        <p className="font-semibold text-slate-900">{p.name}</p>
-                        <p className="text-xs text-slate-500">{p.slug}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">{formatCurrency(Number(p.salePrice ?? p.regularPrice))}</td>
-                  <td className="px-4 py-3">{p.stock}</td>
-                  <td className="px-4 py-3 capitalize">{p.status}</td>
-                  <td className="px-4 py-3 text-right">
-                    <Link
-                      href={`/dashboard/products/${p.id}/edit`}
-                      className="text-sm text-blue-600 hover:underline"
-                    >
-                      Editar
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <VendorProductsTable products={serializedProducts} />
     </div>
   );
 }
