@@ -23,9 +23,7 @@ const nextConfig: NextConfig = {
     // Disable image optimization for external images if needed
     unoptimized: false,
   },
-  experimental: {
-    typedRoutes: true,
-  },
+  typedRoutes: true,
   typescript: {
     // ⚠️ Dangerously allow production builds to successfully complete even if
     // your project has type errors.
