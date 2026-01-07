@@ -4,24 +4,44 @@ import { prisma } from "@/lib/db";
 import { getWeekLabel } from "@/lib/utils";
 import { getSessionUser } from "@/lib/auth";
 
-export async function POST() {
-  const session = await getSessionUser();
-  if (!session) {
-    return NextResponse.json(
-      { error: "No autorizado. Por favor inicia sesión." },
-      { status: 401 }
-    );
-  }
+export async function POST(request: Request) {
+  const body = await request.json().catch(() => ({}));
+  const { vendorSlug } = body;
 
-  let profile = await prisma.vendorProfile.findUnique({
-    where: { userId: session.dbUser.id },
-  });
+  let profile;
 
-  if (!profile) {
-    return NextResponse.json(
-      { error: "Perfil de vendedor no encontrado" },
-      { status: 403 }
-    );
+  if (vendorSlug) {
+    // If vendor slug is provided, use that vendor (no auth required)
+    profile = await prisma.vendorProfile.findUnique({
+      where: { slug: vendorSlug },
+    });
+
+    if (!profile) {
+      return NextResponse.json(
+        { error: "Vendedor no encontrado" },
+        { status: 404 }
+      );
+    }
+  } else {
+    // If no vendor slug, use logged-in user (requires auth)
+    const session = await getSessionUser();
+    if (!session) {
+      return NextResponse.json(
+        { error: "No autorizado. Por favor inicia sesión." },
+        { status: 401 }
+      );
+    }
+
+    profile = await prisma.vendorProfile.findUnique({
+      where: { userId: session.dbUser.id },
+    });
+
+    if (!profile) {
+      return NextResponse.json(
+        { error: "Perfil de vendedor no encontrado" },
+        { status: 403 }
+      );
+    }
   }
 
   try {

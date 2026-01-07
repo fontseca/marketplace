@@ -216,7 +216,7 @@ export default async function ProductPage({ params }: Props) {
             </h3>
             <p className="text-xs sm:text-sm text-slate-500">{similarProducts.length} items</p>
           </div>
-          <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-2">
             {similarProducts.map((item) => (
               <ProductCard key={item.id} product={item} />
             ))}
@@ -231,7 +231,7 @@ export default async function ProductPage({ params }: Props) {
               Te podría interesar
             </h3>
           </div>
-          <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-2">
             {bestSellers.map((item) => (
               <ProductCard key={item.id} product={item} />
             ))}

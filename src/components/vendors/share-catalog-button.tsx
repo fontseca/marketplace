@@ -4,14 +4,22 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { buildShareUrl } from "@/lib/utils";
 
-export function ShareCatalogButton() {
+type Props = {
+  vendorSlug?: string;
+};
+
+export function ShareCatalogButton({ vendorSlug }: Props) {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/catalog/share", { method: "POST" });
+      const res = await fetch("/api/catalog/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vendorSlug }),
+      });
       if (!res.ok) {
         const data = await res.json().catch(() => ({ error: "Error desconocido" }));
         throw new Error(data.error || "No se pudo crear el enlace");

@@ -57,6 +57,11 @@ export function getWhatsappLink(phone: string, text: string) {
 }
 
 export function buildShareUrl(path: string) {
+  // Always prefer client-side origin when available (for client components)
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}${path.startsWith("/") ? "" : "/"}${path}`;
+  }
+  // Fallback to getAppUrl for server-side rendering
   const base = getAppUrl();
   return `${base}${path.startsWith("/") ? "" : "/"}${path}`;
 }

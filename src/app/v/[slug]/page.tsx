@@ -91,7 +91,7 @@ export default async function VendorProfilePage({ params }: Props) {
               )}
             </div>
           </div>
-          <ShareCatalogButton />
+          <ShareCatalogButton vendorSlug={vendor.slug} />
         </div>
       </section>
 
