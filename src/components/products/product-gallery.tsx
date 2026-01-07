@@ -34,7 +34,7 @@ export function ProductGallery({ images }: GalleryProps) {
   return (
     <div className="flex flex-col gap-3 w-full">
       <div
-        className="relative aspect-square w-full max-w-full cursor-pointer overflow-hidden rounded-3xl border border-slate-200 bg-slate-50"
+        className="relative aspect-square w-full max-w-sm mx-auto cursor-pointer overflow-hidden rounded-3xl border border-slate-200 bg-slate-50"
         onClick={() => setOpen(true)}
       >
         {currentImageUrl ? (
@@ -42,7 +42,7 @@ export function ProductGallery({ images }: GalleryProps) {
             src={currentImageUrl}
             alt={current.alt ?? "Imagen del producto"}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 50vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 448px"
             className="h-full w-full object-cover"
             unoptimized={currentImageUrl.includes("/api/images/proxy")}
           />

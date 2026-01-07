@@ -112,7 +112,7 @@ export async function getMoreFromVendor(vendorId: string, excludeId?: string) {
       images: { orderBy: { position: "asc" } },
     },
     orderBy: [{ salesCount: "desc" }, { createdAt: "desc" }],
-    take: 6,
+    take: 2,
   });
 }
 
