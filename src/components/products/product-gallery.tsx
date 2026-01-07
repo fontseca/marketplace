@@ -34,7 +34,7 @@ export function ProductGallery({ images }: GalleryProps) {
   return (
     <div className="flex flex-col gap-3 w-full">
       <div
-        className="relative aspect-square w-full max-w-sm mx-auto cursor-pointer overflow-hidden rounded-3xl border border-slate-200 bg-slate-50"
+        className="relative aspect-square w-full max-w-full sm:max-w-md lg:max-w-sm mx-auto cursor-pointer overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200 bg-slate-50"
         onClick={() => setOpen(true)}
       >
         {currentImageUrl ? (
@@ -52,14 +52,14 @@ export function ProductGallery({ images }: GalleryProps) {
       </div>
 
       {images.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
           {images.map((img, index) => {
             const imageUrl = getImageUrl(img.url);
             return (
               <button
                 key={img.url}
                 className={cn(
-                  "relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border transition-all",
+                  "relative h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0 overflow-hidden rounded-lg sm:rounded-xl border transition-all",
                   active === index
                     ? "border-blue-500 ring-2 ring-blue-200"
                     : "border-slate-200 hover:border-slate-300",

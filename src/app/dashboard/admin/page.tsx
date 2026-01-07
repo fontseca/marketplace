@@ -4,6 +4,8 @@ import { requireRootUser } from "@/lib/auth";
 import { StatsGrid } from "@/components/dashboard/stats-grid";
 import { Button } from "@/components/ui/button";
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminDashboard() {
   await requireRootUser();
 

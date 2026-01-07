@@ -83,8 +83,8 @@ export default async function ProductPage({ params }: Props) {
   const price = Number(product.salePrice ?? product.regularPrice);
 
   return (
-    <div className="grid gap-6 sm:gap-8 lg:grid-cols-[1fr_1fr]">
-      <div className="space-y-6 order-1 lg:col-start-1 w-full">
+    <div className="grid gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-[1fr_1fr]">
+      <div className="space-y-4 sm:space-y-6 order-1 lg:col-start-1 w-full">
         <ProductGallery
           images={product.images.map((img) => ({
             url: img.url,
@@ -93,33 +93,15 @@ export default async function ProductPage({ params }: Props) {
         />
       </div>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm order-2 lg:col-start-1">
-        <h2 className="text-xl font-semibold text-slate-900">Descripción</h2>
-        <p className="mt-2 whitespace-pre-line text-slate-700">
-          {product.description}
-        </p>
-        <div className="mt-4 flex flex-wrap gap-3 text-sm text-slate-600">
-          {(product.brand || product.brandName) && (
-            <Badge variant="secondary">Marca: {product.brand?.name ?? product.brandName}</Badge>
-          )}
-          {product.category && (
-            <Badge variant="secondary">Categoría: {product.category.name}</Badge>
-          )}
-          <Badge variant="secondary">
-            Stock: {product.stock > 0 ? product.stock : "Sin stock"}
-          </Badge>
-        </div>
-      </section>
-
-      <aside className="space-y-6 order-3 lg:col-start-2 lg:row-start-1">
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <aside className="space-y-4 sm:space-y-6 order-2 lg:col-start-2 lg:row-start-1 lg:row-span-2">
+        <section className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
           <div className="flex items-start justify-between gap-3">
-            <div>
+            <div className="flex-1 min-w-0">
               <p className="text-sm text-slate-500">Vendido por</p>
-              <p className="text-lg font-semibold text-slate-900">
+              <p className="text-lg font-semibold text-slate-900 truncate">
                 {product.vendor.displayName}
               </p>
-              <p className="text-sm text-slate-500">@{product.vendor.slug}</p>
+              <p className="text-sm text-slate-500 truncate">@{product.vendor.slug}</p>
             </div>
             {product.images[0]?.url && (() => {
               const imageUrl = product.images[0].url.includes("s3.") || product.images[0].url.includes("amazonaws.com")
@@ -141,18 +123,18 @@ export default async function ProductPage({ params }: Props) {
           </div>
 
           <div className="mt-4 space-y-2">
-            <div className="text-3xl font-bold text-slate-900">
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900">
               {formatCurrency(price)}
             </div>
             {hasSale && (
-              <div className="text-sm text-slate-500 line-through">
+              <div className="text-xs sm:text-sm text-slate-500 line-through">
                 {formatCurrency(Number(product.regularPrice))}
               </div>
             )}
             {product.saleExpiresAt && <OfferCountdown expiresAt={product.saleExpiresAt} />}
           </div>
 
-          <div className="mt-6 space-y-3">
+          <div className="mt-4 sm:mt-6 space-y-3">
             <PurchaseCta
               productId={product.id}
               vendorWhatsapp={product.vendor.whatsapp || product.vendor.user?.phone || undefined}
@@ -165,8 +147,8 @@ export default async function ProductPage({ params }: Props) {
         </section>
 
         {product.variants.length > 0 && (
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900">Variantes</h3>
+          <section className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900">Variantes</h3>
             <div className="mt-3 flex flex-col gap-2 text-sm text-slate-700">
               {product.variants.map((variant) => (
                 <div
@@ -195,11 +177,11 @@ export default async function ProductPage({ params }: Props) {
         {moreFromVendor.length > 0 && (
           <section className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-slate-900">
+              <h3 className="text-base sm:text-lg font-semibold text-slate-900">
                 Más productos de {product.vendor.displayName}
               </h3>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2">
               {moreFromVendor.map((item) => (
                 <ProductCard key={item.id} product={item} />
               ))}
@@ -209,14 +191,14 @@ export default async function ProductPage({ params }: Props) {
       </aside>
 
       {similarProducts.length > 0 && (
-        <section className="flex flex-col gap-3 order-4 lg:col-start-1">
+        <section className="flex flex-col gap-3 order-4 lg:col-start-1 lg:row-start-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-slate-900">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900">
               Productos similares
             </h3>
-            <p className="text-sm text-slate-500">{similarProducts.length} items</p>
+            <p className="text-xs sm:text-sm text-slate-500">{similarProducts.length} items</p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
             {similarProducts.map((item) => (
               <ProductCard key={item.id} product={item} />
             ))}
@@ -225,13 +207,13 @@ export default async function ProductPage({ params }: Props) {
       )}
 
       {bestSellers.length > 0 && (
-        <section className="flex flex-col gap-3 order-5 lg:col-start-1">
+        <section className="flex flex-col gap-3 order-5 lg:col-start-1 lg:row-start-5">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-slate-900">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900">
               Te podría interesar
             </h3>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
             {bestSellers.map((item) => (
               <ProductCard key={item.id} product={item} />
             ))}

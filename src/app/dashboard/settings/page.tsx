@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getSessionUser, requirePhoneNumber } from "@/lib/auth";
 import { PhoneUpdate } from "@/components/dashboard/phone-update";
 
+export const dynamic = 'force-dynamic';
+
 export default async function SettingsPage() {
   await requirePhoneNumber();
   

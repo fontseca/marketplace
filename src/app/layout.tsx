@@ -50,9 +50,9 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} bg-slate-50 text-slate-900 antialiased`}
         >
           <SiteHeader />
-          <div className="h-6" />
-          <main className="container min-h-[70vh] pt-16 pb-10">{children}</main>
-          <div className="h-6" />
+          <div className="h-4 sm:h-6" />
+          <main className="container min-h-[70vh] pt-8 sm:pt-16 pb-6 sm:pb-10">{children}</main>
+          <div className="h-4 sm:h-6" />
           {/* <SiteFooter /> */}
         </body>
       </html>

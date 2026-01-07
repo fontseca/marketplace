@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { AdminProductsTable } from "@/components/dashboard/admin-products-table";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ProductsDashboardPage() {
   const session = await getSessionUser();
   const isRoot = session?.dbUser.role.name === "root";

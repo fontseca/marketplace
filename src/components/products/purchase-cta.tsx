@@ -68,7 +68,7 @@ export function PurchaseCta({
   };
 
   return (
-    <Button className="w-full md:w-auto" onClick={handleBuy} disabled={loading}>
+    <Button className="w-full" onClick={handleBuy} disabled={loading}>
       {loading ? "Generando..." : "Comprar ahora"}
     </Button>
   );

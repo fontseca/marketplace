@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db";
 import { requireVendorProfile } from "@/lib/auth";
 import { ProductForm } from "@/components/products/product-form";
 
+export const dynamic = 'force-dynamic';
+
 export default async function NewProductPage() {
   await requireVendorProfile();
 

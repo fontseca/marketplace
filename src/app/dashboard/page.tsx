@@ -8,6 +8,8 @@ import { EventsList } from "@/components/dashboard/events-list";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
+export const dynamic = 'force-dynamic';
+
 function formatDay(date: Date) {
   return date.toLocaleDateString("es-ES", { month: "short", day: "numeric" });
 }
