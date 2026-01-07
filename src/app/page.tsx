@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description,
     alternates: { canonical: "/" },
     openGraph: {
-      title,
+      title: "Marketplace",
       description,
       url,
       type: "website",

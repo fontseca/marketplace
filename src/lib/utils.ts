@@ -1,5 +1,8 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { startOfWeek, endOfWeek } from "date-fns";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -48,6 +51,48 @@ export function getWeekLabel(date = new Date()) {
   const oneJan = new Date(year, 0, 1);
   const number = Math.ceil(((weekStart.getTime() - oneJan.getTime()) / 86400000 + oneJan.getDay() + 1) / 7);
   return `${year}-W${String(number).padStart(2, "0")}`;
+}
+
+/**
+ * Converts a week label (e.g., "2026-W02") to a friendly date range in Spanish
+ * @param weekLabel - Week label in format "YYYY-WNN"
+ * @returns Friendly date range string like "del 6 al 12 de enero de 2026"
+ */
+export function formatWeekLabel(weekLabel: string): string {
+  try {
+    const [yearPart, weekPart] = weekLabel.split("-W");
+    const year = Number(yearPart);
+    const weekNumber = Number(weekPart);
+    
+    if (isNaN(year) || isNaN(weekNumber)) {
+      return weekLabel; // Return original if parsing fails
+    }
+    
+    // Calculate the start date of the week
+    const firstDay = new Date(year, 0, 1);
+    const days = (weekNumber - 1) * 7;
+    const target = new Date(firstDay.getTime() + days * 86400000);
+    const start = startOfWeek(target, { weekStartsOn: 1 });
+    const end = endOfWeek(start, { weekStartsOn: 1 });
+    
+    // Format dates in Spanish
+    const startDay = format(start, "d", { locale: es });
+    const endDay = format(end, "d", { locale: es });
+    const endMonth = format(end, "MMMM", { locale: es });
+    const endYear = format(end, "yyyy", { locale: es });
+    
+    // If same month, format as "del X al Y de [month] de [year]"
+    if (format(start, "MMMM", { locale: es }) === endMonth) {
+      return `del ${startDay} al ${endDay} de ${endMonth} de ${endYear}`;
+    }
+    
+    // If different months, include both months
+    const startMonth = format(start, "MMMM", { locale: es });
+    return `del ${startDay} de ${startMonth} al ${endDay} de ${endMonth} de ${endYear}`;
+  } catch (error) {
+    console.error("Error formatting week label:", error);
+    return weekLabel; // Return original if formatting fails
+  }
 }
 
 export function getWhatsappLink(phone: string, text: string) {
